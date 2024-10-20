@@ -26,7 +26,7 @@ const AddEntries = () => {
     const [staffs] = useState(["other", "Rashid", "Sandosh", "Muneer", "Balan", "SRS deer", "Srs Keralam", "San grp", "Gobi", "kerala + 8pm deer"])
     const [currentEntry, setCurrentEntry] = useState({
         date: "",
-        time: "01:00",
+        time: "",
         staff_name: "",
         lottery_name: "",
         ticket_number: "",
@@ -100,7 +100,7 @@ const AddEntries = () => {
 
         // Generate a new ID for the entry
         const newEntry = { ...currentEntry, id: generateHash() };
-
+        console.log(currentEntry)
         // Validation checks
         if (!newEntry.date) {
             return toast.error("Date is required");
@@ -123,7 +123,7 @@ const AddEntries = () => {
         if ((isAny[0] && isAny[1]) && (endNo == null)) {
             return toast.error("Please enter end number");
         }
-        if (endNo <= newEntry.ticket_number) {
+        if ((isAny[0] && isAny[1]) && endNo <= newEntry.ticket_number) {
             return toast.error("End number cannot be less than ticket number");
         }
 
@@ -132,15 +132,25 @@ const AddEntries = () => {
             const temp_array = [];
             for (let i = newEntry.ticket_number; i <= endNo; i++) {
                 // Create a new entry for each ticket number
-                temp_array.push({ ...newEntry, ticket_number: i });
+                temp_array.push({ ...newEntry, ticket_number: i, id: generateHash() });
             }
-            setEntries([...entries, ...temp_array]); // Add all entries to the state
-        } else {
-            setEntries([...entries, newEntry]); // Add the single new entry
+            setEntries([...temp_array,...entries]); // Add all entries to the state
+        }
+        else if (currentEntry.lottery_name == "BOX") {             
+            const ticketNumberStr = newEntry.ticket_number.toString();
+            const permutations = generatePermutations(ticketNumberStr); // Generate permutations
+            const temp_array = permutations.map(permutation => {
+                return { ...newEntry, lottery_name:"LSK-SUPER",ticket_number: parseInt(permutation), id: generateHash(), };
+            });
+            if(currentEntry.ticket_number == 100){
+                setEntries([...["100","001","010"],...entries]); // Add all permutations as entries
+            }
+            setEntries([...temp_array,...entries]); // Add all permutations as entries
         }
 
-        // Optionally reset the form fields after successful addition
-        resetForm(); // Create this function to reset the form values
+        else {
+            setEntries([newEntry,...entries]); // Add the single new entry
+        }
     };
 
     // Function to reset the form values
@@ -166,6 +176,22 @@ const AddEntries = () => {
             return total + entryCount;
         }, 0);
     };
+    // Helper function to generate permutations of a string
+    const generatePermutations = (str) => {
+        if (str.length <= 1) return [str];
+
+        let perms = [];
+        for (let i = 0; i < str.length; i++) {
+            let char = str[i];
+            let remaining = str.slice(0, i) + str.slice(i + 1);
+            let remainingPerms = generatePermutations(remaining);
+
+            for (let perm of remainingPerms) {
+                perms.push(char + perm);
+            }
+        }
+        return perms;
+    }
 
     const navigate = useNavigate()
     return (
@@ -200,9 +226,9 @@ const AddEntries = () => {
                     {/* time */}
                     <div>
                         <label htmlFor="time">Time</label>
-                        <Select onChange={(e) => { setCurrentEntry({ ...currentEntry, time: e.target.value }) }} defaultValue="01:00" name='time'>
+                        <Select onValueChange={(e) => { setCurrentEntry({ ...currentEntry, time: e }) }} name='time'>
                             <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="" />
+                                <SelectValue placeholder="Select Time" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="01:00">01:00</SelectItem>
@@ -269,13 +295,13 @@ const AddEntries = () => {
                     </div>
                     <div>
                         <label htmlFor="count">Count</label>
-                        <Input onChange={(e) => { setCurrentEntry({ ...currentEntry, count: e.target.value }) }} type="number" name="count" />
+                        <Input onChange={(e) => { setCurrentEntry({ ...currentEntry, count: e.target.value }) }} value={currentEntry.count} type="number" name="count" />
                     </div>
                     {
                         isAny[1] ?
                             <div>
                                 <label htmlFor="end-no">End No.</label>
-                                <Input onChange={(e) => { setEndNo(e.target.value) }} type="number" name="end-no" />
+                                <Input onChange={(e) => { setEndNo(String(e.target.value)) }} type="number" name="end-no" />
                             </div>
                             : ""
                     }
