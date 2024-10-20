@@ -7,6 +7,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import NotFound from './globals/NotFound';
 import Entries from './pages/Entries/Entries';
 import AddEntries from './pages/AddEntries/AddEntries';
+import StaffAmount from './pages/StaffAmount/StaffAmount';
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -27,6 +28,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Entries/>} />
           <Route path="/add-entries" element={<AddEntries/>} />
+          <Route path="/staff-amount" element={<StaffAmount/>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </>
@@ -39,6 +41,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Entries/>} />
           <Route path="/add-entries" element={<AddEntries/>} />
+          <Route path="/staff-amount" element={<StaffAmount/>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </>

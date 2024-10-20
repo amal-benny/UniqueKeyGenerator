@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Select,
     SelectContent,
@@ -15,15 +15,15 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import axios from "../../config/AxiosConfig"
 import { Button } from '@/components/ui/button'
-import { useNavigate } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import toast from 'react-hot-toast'
 
 const AddEntries = () => {
-    const [staffs] = useState(["other", "Rashid", "Sandosh", "Muneer", "Balan", "SRS deer", "Srs Keralam", "San grp", "Gobi", "kerala + 8pm deer"])
+    const [staffAmount,setStaffAmount] = useState([])
     const [currentEntry, setCurrentEntry] = useState({
         date: "",
         time: "",
@@ -33,17 +33,7 @@ const AddEntries = () => {
         count: ""
     });
     const [endNo, setEndNo] = useState(null)
-    const [entries, setEntries] = useState([
-        {
-            id: "1",
-            date: "02-09-2002",
-            time: "09:00",
-            staff_name: "Rasheed",
-            lottery_name: "LSK-SUPER",
-            ticket_number: 123,
-            count: 12
-        },
-    ])
+    const [entries, setEntries] = useState([])
 
     const [lotteryName, setLotteryName] = useState({
         1: ["A", "B", "C"],
@@ -88,6 +78,28 @@ const AddEntries = () => {
 
     const generateHash = () => Math.random().toString(36).substring(2, 9);
 
+    const calculateAmount = (staff_name,lottery_name,count) => {
+
+        if(!lottery_name || !staff_name || !count){
+            return 0
+        }
+        if(lottery_name == "A" || lottery_name == "B" || lottery_name == "C"){
+            return staffAmount[staff_name].single * count
+        }
+        else if(lottery_name == "AB" || lottery_name == "AC" || lottery_name == "BC"){
+            return staffAmount[staff_name].double * count
+        }
+        else if ( lottery_name == "LSK-SUPER" || lottery_name == "BOX"){
+            return staffAmount[staff_name].lsk * count
+        }
+        else if(lottery_name == "BOXKK"){
+            return staffAmount[staff_name].boxkk * count
+        }
+        else
+        {
+            return 0
+        }
+    }
     const handleAdd = () => {
         // Clear previous error messages before validating new input
         const clearErrors = () => {
@@ -99,8 +111,7 @@ const AddEntries = () => {
         clearErrors();
 
         // Generate a new ID for the entry
-        const newEntry = { ...currentEntry, id: generateHash() };
-        console.log(currentEntry)
+        const newEntry = { ...currentEntry, uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count) };
         // Validation checks
         if (!newEntry.date) {
             return toast.error("Date is required");
@@ -132,15 +143,15 @@ const AddEntries = () => {
             const temp_array = [];
             for (let i = newEntry.ticket_number; i <= endNo; i++) {
                 // Create a new entry for each ticket number
-                temp_array.push({ ...newEntry, ticket_number: i, id: generateHash() });
+                temp_array.push({ ...newEntry, ticket_number: i, uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count)});
             }
             setEntries([...temp_array,...entries]); // Add all entries to the state
         }
-        else if (currentEntry.lottery_name == "BOX") {             
+        else if (currentEntry.lottery_name == "BOX"){             
             const ticketNumberStr = newEntry.ticket_number.toString();
             const permutations = generatePermutations(ticketNumberStr); // Generate permutations
             const temp_array = permutations.map(permutation => {
-                return { ...newEntry, lottery_name:"LSK-SUPER",ticket_number: parseInt(permutation), id: generateHash(), };
+                return { ...newEntry, lottery_name:"LSK-SUPER",ticket_number: parseInt(permutation), uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count)};
             });
             if(currentEntry.ticket_number == 100){
                 setEntries([...["100","001","010"],...entries]); // Add all permutations as entries
@@ -152,7 +163,6 @@ const AddEntries = () => {
             setEntries([newEntry,...entries]); // Add the single new entry
         }
     };
-
     // Function to reset the form values
     const resetForm = () => {
         setCurrentEntry({
@@ -165,8 +175,8 @@ const AddEntries = () => {
         });
     };
 
-    const handleRemove = (id) => {
-        const newData = entries.filter((entry) => (entry.id != id))
+    const handleRemove = (uid) => {
+        const newData = entries.filter((entry) => (entry.uid != uid))
         setEntries(newData)
     }
 
@@ -176,6 +186,14 @@ const AddEntries = () => {
             return total + entryCount;
         }, 0);
     };
+
+    const calculateTotalAmount = () => {
+        return entries.reduce((total, entry) => {
+            const entryCount = entry.amount ? parseInt(entry.amount, 10) : 0;
+            return total + entryCount;
+        }, 0);
+    };
+
     // Helper function to generate permutations of a string
     const generatePermutations = (str) => {
         if (str.length <= 1) return [str];
@@ -193,7 +211,46 @@ const AddEntries = () => {
         return perms;
     }
 
-    const navigate = useNavigate()
+    const handleSave = async()=>{
+        try {
+            toast.loading()
+            await axios.post(process.env.REACT_APP_BASE_URL + "api/main/add-entries",{entries})
+            toast.dismiss()
+            toast.success("Success")
+        } catch (error) {
+            toast.dismiss()
+            error.response ? toast.error( "Error : " + error.response.data.message) : toast.error("failed")
+        }
+    }
+
+    const fetchStaffAmount = async () => {
+        try {
+            const res = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-staff");
+            const staffAmount = res.data.staffs;
+            const staffMap = {};
+            staffAmount.forEach((staff) => {
+                staffMap[staff.staff_name] = {
+                    single: parseFloat(staff.single["$numberDecimal"]),
+                    double: parseFloat(staff.double["$numberDecimal"]),
+                    lsk: parseFloat(staff.lsk["$numberDecimal"]),
+                    boxkk: parseFloat(staff.boxkk["$numberDecimal"]),
+                    _id: staff._id,
+                    createdAt: staff.createdAt,
+                    updatedAt: staff.updatedAt
+                };
+            });
+            setStaffAmount(staffMap); // Store the hashmap in the state or use it as needed
+        } catch (error) {
+            error.response
+                ? toast.error("Error: " + error.response.data.message)
+                : toast.error("Failed");
+        }
+    };
+
+    useEffect(()=>{
+        fetchStaffAmount();
+    },[])
+
     return (
         <div className='mt-[80px]'>
             <h2 className="text-center scroll-m-20 pb-2 text-4xl font-semibold tracking-tight pt-2 first:mt-0">
@@ -247,8 +304,8 @@ const AddEntries = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 {
-                                    staffs.map((staffName, index) => (
-                                        <SelectItem value={staffName} key={index}>{staffName}</SelectItem>
+                                    Object.keys(staffAmount).map((staff, index) => (
+                                        <SelectItem value={staff} key={index+1}>{staff}</SelectItem>
                                     ))
                                 }
                             </SelectContent>
@@ -334,7 +391,7 @@ const AddEntries = () => {
                                     <TableCell className="font-medium border text-center">{entry.ticket_number}</TableCell>
                                     <TableCell className="font-medium border text-center">{entry.count}</TableCell>
                                     <TableCell className="font-medium border text-center">{entry.amount}</TableCell>
-                                    <TableCell className="font-medium border text-center"><Button onClick={(e) => { handleRemove(entry.id) }} variant="destructive">Remove</Button></TableCell>
+                                    <TableCell className="font-medium border text-center"><Button onClick={(e) => { handleRemove(entry.uid) }} variant="destructive">Remove</Button></TableCell>
                                 </TableRow>
                             ))
                         }
@@ -343,11 +400,11 @@ const AddEntries = () => {
                             <TableCell className="font-medium border"></TableCell>
                             <TableCell className="font-medium border text-right">TOTAL :</TableCell>
                             <TableCell className="border text-center font-bold">{calculateTotalCount()}</TableCell>
-                            <TableCell className="font-medium border text-center">123</TableCell>
+                            <TableCell className="font-medium border text-center">{calculateTotalAmount()}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
-                <Button className={"mt-2"}>Save</Button>
+                <Button className={"mt-2"} onClick={handleSave}>Save</Button>
             </div>
         </div>
     )
