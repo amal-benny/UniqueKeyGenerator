@@ -8,16 +8,16 @@ const Navbar = () => {
     let Links = [
         { name: "Entries", link: "/" },
         { name: "Winners", link: "/winners" },
-        { name: "Winning Amount", link: "/winning_amount" },
+        { name: "Winning Amount", link: "/winning-amount" },
         { name: "Staff Amount", link: "/staff-amount" },
         { name: "Report", link: "/report" },
-        { name: "Daily Report", link: "/daily_report" },
+        { name: "Daily Report", link: "/daily-report" },
     ];
     const navigate = useNavigate();
     const { logout, user } = useContext(AuthContext)
     let [open, setOpen] = useState(false);
     return (
-        <div className='shadow-md w-full fixed top-0 left-0'>
+        <div className='shadow-md w-full fixed top-0 left-0 z-30'>
             <div className='md:flex items-center justify-between bg-white py-4 md:px-10 px-7'>
                 {/* logo section */}
                 <div className='font-bold text-2xl cursor-pointer flex items-center gap-1'>

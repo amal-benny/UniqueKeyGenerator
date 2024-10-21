@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
-const Entries = () => {
+const Winners = () => {
     const [staffs] = useState(["other", "Rashid", "Sandosh", "Muneer", "Balan", "SRS deer", "Srs Keralam", "San grp", "Gobi", "kerala + 8pm deer"])
     const [entries, setEntries] = useState([])
     const [currentData,setCurrentData] = useState({})
@@ -37,7 +37,6 @@ const Entries = () => {
         }
     }
     const handleSearch = ()=>{
-        console.log(currentData)
         if(!currentData.date || !currentData.time ){
             return toast.error("Please enter date and time")
         }
@@ -103,7 +102,7 @@ const Entries = () => {
             </div>
             {/* table */}
             <div className='px-10 mt-4'>
-            <Button className="float-right mb-2" onClick={()=>{navigate("/add-entries")}}>Add +</Button>
+            <Button className="float-right mb-2" onClick={()=>{navigate("/add-winners")}}>Add +</Button>
                 <Table className="border rounded-md">
                     <TableHeader>
                         <TableRow>
@@ -135,4 +134,4 @@ const Entries = () => {
     )
 }
 
-export default Entries
+export default Winners

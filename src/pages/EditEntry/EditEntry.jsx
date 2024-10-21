@@ -21,9 +21,29 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import toast from 'react-hot-toast'
+import { useLocation, useNavigate } from 'react-router-dom'
+import moment from 'moment'
 
-const AddEntries = () => {
+const EditEntry = () => {
     const [staffAmount,setStaffAmount] = useState([])
+    const [entries, setEntries] = useState([])
+    const [idToRemoveFromDb,setIdToRemoveFromDb ] = useState([])
+    const [needsToBeAddedToDb,setNeedsToBeAddedToDb] = useState([])
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const param1 = moment(searchParams.get('date')).utc().format("YYYY-MM-DD")
+    const param2 = searchParams.get('time');
+    const param3 = searchParams.get('staff_name');
+    const navigate = useNavigate();
+    const fetchAllEntriesForEdit = async () => {
+        try {
+          const data = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-all-entries/"+param1+"/"+param2+"/"+param3);
+          setEntries(data.data);
+        } catch (error) {
+            error.response ? toast.error( "Error : " + error.response.data.message) : toast.error("failed")
+        }
+      };
+
     const [currentEntry, setCurrentEntry] = useState({
         date: "",
         time: "",
@@ -33,7 +53,6 @@ const AddEntries = () => {
         count: ""
     });
     const [endNo, setEndNo] = useState(null)
-    const [entries, setEntries] = useState([])
 
     const [lotteryName, setLotteryName] = useState({
         1: ["A", "B", "C"],
@@ -75,9 +94,7 @@ const AddEntries = () => {
     const handleAnyChange = (anyStatus) => {
         setAny([true, anyStatus])
     }
-
     const generateHash = () => Math.random().toString(36).substring(2, 9);
-
     const calculateAmount = (staff_name,lottery_name,count) => {
 
         if(!lottery_name || !staff_name || !count){
@@ -146,6 +163,7 @@ const AddEntries = () => {
                 temp_array.push({ ...newEntry, ticket_number: i, uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count)});
             }
             setEntries([...temp_array,...entries]); // Add all entries to the state
+            setNeedsToBeAddedToDb([...needsToBeAddedToDb,...temp_array])
         }
         else if (currentEntry.lottery_name == "BOX"){             
             const ticketNumberStr = newEntry.ticket_number.toString();
@@ -155,12 +173,15 @@ const AddEntries = () => {
             });
             if(currentEntry.ticket_number == 100){
                 setEntries([...["100","001","010"],...entries]); // Add all permutations as entries
+                setNeedsToBeAddedToDb([...needsToBeAddedToDb,...["100","001","010"]])
             }
             setEntries([...temp_array,...entries]); // Add all permutations as entries
+            setNeedsToBeAddedToDb([...needsToBeAddedToDb,...temp_array])
         }
 
         else {
             setEntries([newEntry,...entries]); // Add the single new entry
+            setNeedsToBeAddedToDb([...needsToBeAddedToDb,newEntry])
         }
     };
     // Function to reset the form values
@@ -175,7 +196,10 @@ const AddEntries = () => {
         });
     };
 
-    const handleRemove = (uid) => {
+
+
+    const handleRemove = (uid,_id) => {
+        setIdToRemoveFromDb([...idToRemoveFromDb,_id])
         const newData = entries.filter((entry) => (entry.uid != uid))
         setEntries(newData)
     }
@@ -213,10 +237,15 @@ const AddEntries = () => {
 
     const handleSave = async()=>{
         try {
-            toast.loading("Uploading")
-            await axios.post(process.env.REACT_APP_BASE_URL + "api/main/add-entries",{entries})
+            toast.loading("Updating")
+            if(needsToBeAddedToDb.length == 0 && idToRemoveFromDb.length == 0){
+                return toast("No Changes were done")
+            }
+            await axios.post(process.env.REACT_APP_BASE_URL + "api/main/add-entries",{entries:needsToBeAddedToDb})
+            await axios.post(process.env.REACT_APP_BASE_URL + "api/main/delete-entries",{idsToDelete:idToRemoveFromDb})
             toast.dismiss()
             toast.success("Success")
+            // navigate("/")
         } catch (error) {
             toast.dismiss()
             error.response ? toast.error( "Error : " + error.response.data.message) : toast.error("failed")
@@ -246,15 +275,33 @@ const AddEntries = () => {
                 : toast.error("Failed");
         }
     };
-
+    const calculateAndSetAmount = ()=>{
+            const updatedEntries = entries.map(entry => ({
+            ...entry,
+            amount: calculateAmount(entry.staff_name,entry.lottery_name,entry.count),
+            uid:generateHash()
+            }));
+             setEntries(updatedEntries);
+    }
     useEffect(()=>{
-        fetchStaffAmount();
+        const fetchData = async () => {
+            await fetchStaffAmount();  // Ensure fetching is done before proceeding
+            await fetchAllEntriesForEdit();  // Ensure entries are fetched
+          };
+          
+          fetchData();
     },[])
+
+    useEffect(() => {
+        if (entries.length > 0) {
+          calculateAndSetAmount(); // Recalculate amount once entries are fetched
+        }
+      }, [entries]); // Runs when `entries` changes
 
     return (
         <div className='mt-[80px]'>
             <h2 className="text-center scroll-m-20 pb-2 text-4xl font-semibold tracking-tight pt-2 first:mt-0">
-                Add Entry
+                Edit Entry 
             </h2>
             <div className='space-y-5'>
                 {/* Search Form row 1 */}
@@ -391,7 +438,7 @@ const AddEntries = () => {
                                     <TableCell className="font-medium border text-center">{entry.ticket_number}</TableCell>
                                     <TableCell className="font-medium border text-center">{entry.count}</TableCell>
                                     <TableCell className="font-medium border text-center">{entry.amount}</TableCell>
-                                    <TableCell className="font-medium border text-center"><Button onClick={(e) => { handleRemove(entry.uid) }} variant="destructive">Remove</Button></TableCell>
+                                    <TableCell className="font-medium border text-center"><Button onClick={(e) => { handleRemove(entry.uid,entry._id) }} variant="destructive">Remove</Button></TableCell>
                                 </TableRow>
                             ))
                         }
@@ -410,4 +457,4 @@ const AddEntries = () => {
     )
 }
 
-export default AddEntries
+export default EditEntry
