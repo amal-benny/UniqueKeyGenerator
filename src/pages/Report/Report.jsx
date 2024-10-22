@@ -24,6 +24,7 @@ import toast from 'react-hot-toast'
 const Report = () => {
     const [currentData, setCurrentData] = useState({})
     const [lotteryDetails, setLotteryDetails] = useState({})
+    const [winningAmount,setWinningAmount] = useState({})
     const [staffs, setStaffs] = useState([])
     const [topTable, setTopTable] = useState({
         Single: 0,
@@ -35,6 +36,8 @@ const Report = () => {
     const fetchStaffAmount = async () => {
         try {
             const res = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-staff");
+            const res2 = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-winning-amount");
+            setWinningAmount(res2.data)
             const staffAmount = res.data.staffs;
             const staffMap = {};
             staffAmount.forEach((staff) => {
@@ -163,13 +166,11 @@ const Report = () => {
                     winningPosition = 'fourth';
                 } else if (ticket_number === winning.fifth) {
                     winningPosition = 'fifth';
-                }
-
+                }   
                 // Check if ticket_number is in the guarantee list
                 if (winning.guarantee.includes(ticket_number)) {
                     winningPosition = 'guarantee';
                 }
-
                 // Check for A, B, C, AB, AC, BC, BOXKK1-6
                 if (lottery_name === 'A' && winning.A){
                     winningPosition = 'A';
@@ -196,7 +197,6 @@ const Report = () => {
             });
             toast.dismiss()
             toast.success("success")
-            console.log(bottomTable)
         } catch (error) {
             error.response
                 ? toast.error("Error: " + error.response.data.message)
@@ -220,6 +220,30 @@ const Report = () => {
     //     });
     //     navigate(`/edit-entries?${params.toString()}`);
     // }
+
+    const calculateTotalCountForBottom = ()=>{
+        let data = 0;
+        bottomTable.forEach(({count, winning_position})=>{
+            data += count
+        })
+        return data
+    }
+
+    const calculateSalesTotal = ()=>{
+        const data = (topTable.boxkk * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].boxkk : 0)) + 
+        (topTable.lsk*(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].lsk : 0) )+
+        (topTable.Double * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].double : 0))+
+        (topTable.Single*(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].single : 0))
+        return data
+    }
+ 
+    const calculateWinningTotal = ()=>{
+        let data = 0;
+        bottomTable.forEach(({count, winning_position})=>{
+            data += count * winningAmount[winning_position]
+        })
+        return data
+    }
 
     return (
         <div className='mt-[80px]'>
@@ -326,7 +350,7 @@ const Report = () => {
                                     <TableCell className="font-medium border"></TableCell>
                                     <TableCell className="font-medium border"></TableCell>
                                     <TableCell className="font-medium border text-right">Sales Total= </TableCell>
-                                    <TableCell className="font-medium border text-right">{(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].boxkk : 0 * topTable.boxkk) + (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].lsk : 0  * topTable.lsk)+(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].double : 0 * topTable.Double)+(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].single : 0 * topTable.Single)}</TableCell>
+                                    <TableCell className="font-medium border text-right">{calculateSalesTotal()}</TableCell>
                                 </TableRow>
                     </TableBody>
                 </Table>
@@ -355,16 +379,30 @@ const Report = () => {
                                     <TableCell className="font-medium border">{w.ticket_number}</TableCell>
                                     <TableCell className="font-medium border text-center">{w.count}</TableCell>
                                     <TableCell className="font-medium border text-center">{w.winning_position}</TableCell>
-                                    <TableCell className="font-medium border text-right">{124}</TableCell>
+                                    <TableCell className="font-medium border text-right">{winningAmount[w.winning_position] * w.count}</TableCell>
                                 </TableRow>
                             ))
                         }
                         <TableRow>
                             <TableCell className="font-bold border text-black" value>Total</TableCell>
                             <TableCell className="font-medium border"></TableCell>
-                            <TableCell className="font-bold border text-center text-black">31</TableCell>
-                            <TableCell className="font-medium border text-center"></TableCell>
+                            <TableCell className="font-bold border text-center text-black">{calculateTotalCountForBottom()}</TableCell>
                             <TableCell className="font-bold border text-left text-black">Total Winning:</TableCell>
+                            <TableCell className="font-medium border text-right">{calculateWinningTotal()}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell className="font-bold border text-black" value></TableCell>
+                            <TableCell className="font-medium border"></TableCell>
+                            <TableCell className="font-bold border text-center text-black"></TableCell>
+                            <TableCell className="font-bold border text-left text-black">Sales Total:</TableCell>
+                            <TableCell className="font-medium border text-right">{calculateSalesTotal()}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell className="font-bold border text-black" value></TableCell>
+                            <TableCell className="font-medium border"></TableCell>
+                            <TableCell className="font-bold border text-center text-black"></TableCell>
+                            <TableCell className="font-bold border text-left text-black">Balance:</TableCell>
+                            <TableCell className="font-medium border text-right">{ (calculateWinningTotal() - calculateSalesTotal()) < 0 ? "-" +(calculateWinningTotal() - calculateSalesTotal()) :"+" +(calculateWinningTotal() - calculateSalesTotal()) }</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
