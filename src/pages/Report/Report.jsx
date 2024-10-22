@@ -326,7 +326,7 @@ const Report = () => {
                                     <TableCell className="font-medium border"></TableCell>
                                     <TableCell className="font-medium border"></TableCell>
                                     <TableCell className="font-medium border text-right">Sales Total= </TableCell>
-                                    <TableCell className="font-medium border text-right">{(staffs[currentData.staff_name].boxkk * topTable.boxkk) + (staffs[currentData.staff_name].lsk * topTable.lsk)+(staffs[currentData.staff_name].double * topTable.Double)+(staffs[currentData.staff_name].single * topTable.Single)}</TableCell>
+                                    <TableCell className="font-medium border text-right">{(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].boxkk : 0 * topTable.boxkk) + (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].lsk : 0  * topTable.lsk)+(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].double : 0 * topTable.Double)+(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].single : 0 * topTable.Single)}</TableCell>
                                 </TableRow>
                     </TableBody>
                 </Table>
@@ -349,7 +349,7 @@ const Report = () => {
                     </TableHeader>
                     <TableBody>
                         {
-                            winners.map((w, index) => (
+                            bottomTable.map((w, index) => (
                                 <TableRow key={index}>
                                     <TableCell className="font-medium border" value>{w.lottery_name}</TableCell>
                                     <TableCell className="font-medium border">{w.ticket_number}</TableCell>
