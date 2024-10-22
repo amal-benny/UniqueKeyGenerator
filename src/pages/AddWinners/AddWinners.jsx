@@ -56,6 +56,7 @@ const AddWinners = () => {
             }
             await axios.post(`${process.env.REACT_APP_BASE_URL}api/main/add-winners`, currentData)
             toast.dismiss()
+            toast.success("Success")
         } catch (error) {
             toast.dismiss()
             error.response

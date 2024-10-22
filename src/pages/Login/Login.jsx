@@ -20,18 +20,20 @@ const Login = () => {
     const navigate = useNavigate();
     const handleSubmit = async ()=>{
         try {
+        toast.loading("Signing in")
         if(!username || !password){
             return toast.error("Username and password is required")
         }
         if(password.length < 8){
             return toast.error("password should be atleast 8 characters long")
         }
-            await login(username,password)
-            navigate("/")
-        } catch (error) {
-            error.response ? console.log(error) : console.log(error)
+        await login(username,password)
+        toast.dismiss()
+        navigate("/")
+    } catch (error) {
+            toast.dismiss()
+            error.response ? toast.error(error) : toast.error(error)
         }
-
     }
 
     return (
