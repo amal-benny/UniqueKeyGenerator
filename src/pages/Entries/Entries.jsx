@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const Entries = () => {
-    const [staffs] = useState(["other", "Rashid", "Sandosh", "Muneer", "Balan", "SRS deer", "Srs Keralam", "San grp", "Gobi", "kerala + 8pm deer"])
+    const [staffs] = useState(["other", "Rashid", "Sandosh", "Muneer", "Balan", "SRS_deer", "Srs_Keralam", "San_grp", "Gobi", "kerala_+_8pm_deer"])
     const [entries, setEntries] = useState([])
     const [currentData,setCurrentData] = useState({})
     const navigate = useNavigate()

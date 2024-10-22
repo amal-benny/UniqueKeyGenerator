@@ -217,6 +217,7 @@ const AddEntries = () => {
             await axios.post(process.env.REACT_APP_BASE_URL + "api/main/add-entries",{entries})
             toast.dismiss()
             toast.success("Success")
+            setEntries([])
         } catch (error) {
             toast.dismiss()
             error.response ? toast.error( "Error : " + error.response.data.message) : toast.error("failed")
