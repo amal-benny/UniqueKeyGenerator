@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import axios from "../../config/AxiosConfig"
 import moment from 'moment'
 import {
@@ -22,9 +22,16 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const AddWinners = () => {
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Add leading zero if necessary
+        const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if necessary
+        return `${year}-${month}-${day}`;
+    };
     const [currentData, setCurrentData] = useState({
-        date: '',
-        time: '',
+        date: getTodayDate(),
+        time: '01:00',
         winning: {
             first: "",
             second: "",
@@ -46,7 +53,47 @@ const AddWinners = () => {
             BOXKK6:""
         }
     })
+    const inputRefs = useRef({ guarantee: [], otherFields: {} }); // Updated inputRefs for other fields
+    const firstRef = useRef(); // Updated inputRefs for other fields
+    const secondRef = useRef(); // Updated inputRefs for other fields
+    const thirdRef = useRef(); // Updated inputRefs for other fields
+    const fourthRef = useRef(); // Updated inputRefs for other fields
+    const fifthRef = useRef(); // Updated inputRefs for other fields
+    
+    const aRef = useRef(); // Updated inputRefs for other fields
+    const bRef = useRef(); // Updated inputRefs for other fields
+    const cRef = useRef(); // Updated inputRefs for other fields
+    const abRef = useRef(); // Updated inputRefs for other fields
+    const bcRef = useRef(); // Updated inputRefs for other fields
+    const acRef = useRef(); // Updated inputRefs for other fields
+    const box1Ref = useRef(); // Updated inputRefs for other fields
+    const box2Ref = useRef(); // Updated inputRefs for other fields
+    const box3Ref = useRef(); // Updated inputRefs for other fields
+    const box4Ref = useRef(); // Updated inputRefs for other fields
+    const box5Ref = useRef(); // Updated inputRefs for other fields
+    const box6Ref = useRef(); // Updated inputRefs for other fields
 
+
+    const handleInputChange = (e, index, key) => {
+        const value = e.target.value;
+        setCurrentData((prevData) => {
+            const updatedWinning = { ...prevData.winning };
+            if (key === 'guarantee') {
+                updatedWinning.guarantee[index] = value;
+            }
+            return { ...prevData, winning: updatedWinning };
+        });
+        // Move focus if the current input reaches 3 digits
+        if (value.length >= 3) {
+            if (key === 'guarantee' && inputRefs.current.guarantee[index + 1]) {
+                inputRefs.current.guarantee[index + 1].focus();
+            }
+            else if(key === 'guarantee')
+            {
+                aRef.current.focus();
+            }
+        }
+    };
     const handleUpload = async() => {
         try {
             toast.loading("loading")
@@ -74,16 +121,8 @@ const AddWinners = () => {
             <TableCell className="font-medium border-2 border-black text-center">
                 <Input
                     type="number"
-                    onChange={(e) => {
-                        setCurrentData((prevData) => {
-                            const guarantee = [...prevData.winning.guarantee];
-                            guarantee[index] = e.target.value;
-                            return {
-                                ...prevData,
-                                winning: { ...prevData.winning, guarantee },
-                            };
-                        });
-                    }}
+                    ref={(el) => (inputRefs.current.guarantee[index] = el)}
+                    onChange={(e)=>(handleInputChange(e,index,'guarantee'))}
                 />
             </TableCell>
         </TableRow>
@@ -100,6 +139,7 @@ const AddWinners = () => {
                     <label htmlFor="date">Date</label>
                     <Input
                     type="date"
+                    value={currentData.date}
                         onChange={(e) => setCurrentData((prev) => ({
                             ...prev,
                             date: e.target.value
@@ -109,7 +149,7 @@ const AddWinners = () => {
                 {/* time */}
                 <div>
                     <label htmlFor="time">Time</label>
-                    <Select onValueChange={(e) => { setCurrentData({ ...currentData, time: e }) }} name='time'>
+                    <Select value={currentData.time} onValueChange={(e) => { setCurrentData({ ...currentData, time: e }) }} name='time'>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Select Time" />
                         </SelectTrigger>
@@ -138,7 +178,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">1st Prize</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
-                                    
+                                    ref={firstRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -147,6 +187,10 @@ const AddWinners = () => {
                                                 first: e.target.value,
                                             },
                                         }));
+
+                                        if(String(e.target.value).length >= 3){
+                                            secondRef.current.focus()
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -156,6 +200,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">2nd Prize</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                    ref={secondRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -164,6 +209,9 @@ const AddWinners = () => {
                                                 second: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            thirdRef.current.focus()
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -173,6 +221,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">3rd Prize</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={thirdRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -181,6 +230,9 @@ const AddWinners = () => {
                                                 third: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            fourthRef.current.focus()
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -190,6 +242,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">4th Prize</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={fourthRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -198,6 +251,9 @@ const AddWinners = () => {
                                                 fourth: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            fifthRef.current.focus()
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -207,6 +263,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">5th Prize</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={fifthRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -215,6 +272,9 @@ const AddWinners = () => {
                                                 fifth: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            inputRefs.current.guarantee[0].focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -225,6 +285,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">A</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                    ref={aRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -233,6 +294,9 @@ const AddWinners = () => {
                                                 A: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 1){
+                                            bRef.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -242,6 +306,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">B</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                    ref={bRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -250,6 +315,9 @@ const AddWinners = () => {
                                                 B: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 1){
+                                            cRef.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -259,6 +327,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">C</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                    ref={cRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -267,6 +336,9 @@ const AddWinners = () => {
                                                 C: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 1){
+                                            abRef.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -276,6 +348,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">AB</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                    ref={abRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -284,6 +357,9 @@ const AddWinners = () => {
                                                 AB: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 2){
+                                            bcRef.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -293,6 +369,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">BC</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                    ref={bcRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -301,6 +378,9 @@ const AddWinners = () => {
                                                 BC: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 2){
+                                            acRef.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -310,6 +390,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">AC</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                    ref={acRef}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -318,6 +399,9 @@ const AddWinners = () => {
                                                 AC: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 2){
+                                            box1Ref.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -327,6 +411,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">BOXKK1</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={box1Ref}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -335,6 +420,9 @@ const AddWinners = () => {
                                                 BOXKK1: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            box2Ref.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -344,6 +432,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">BOXKK2</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={box2Ref}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -352,6 +441,9 @@ const AddWinners = () => {
                                                 BOXKK2: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            box3Ref.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -361,6 +453,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">BOXKK3</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={box3Ref}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -369,6 +462,9 @@ const AddWinners = () => {
                                                 BOXKK3: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            box4Ref.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -378,6 +474,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">BOXKK4</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={box4Ref}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -386,6 +483,9 @@ const AddWinners = () => {
                                                 BOXKK4: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            box5Ref.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -395,6 +495,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">BOXKK5</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={box5Ref}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,
@@ -403,6 +504,9 @@ const AddWinners = () => {
                                                 BOXKK5: e.target.value,
                                             },
                                         }));
+                                        if(String(e.target.value).length >= 3){
+                                            box6Ref.current.focus();
+                                        }
                                     }}
                                 />
                             </TableCell>
@@ -412,6 +516,7 @@ const AddWinners = () => {
                             <TableCell className="font-medium border-2 border-black">BOXKK6</TableCell>
                             <TableCell className="font-medium border-2 border-black text-center">
                                 <Input
+                                ref={box6Ref}
                                     onChange={(e) => {
                                         setCurrentData((prevData) => ({
                                             ...prevData,

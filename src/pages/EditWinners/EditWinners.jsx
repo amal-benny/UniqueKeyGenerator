@@ -50,7 +50,6 @@ const EditWinners = () => {
             BOXKK6:""
         }
     })
-
     const handleUpdate = async() => {
         try {
             toast.loading("Updating")

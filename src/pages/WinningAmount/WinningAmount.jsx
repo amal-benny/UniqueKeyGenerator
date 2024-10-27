@@ -44,7 +44,6 @@ const WinningAmount = () => {
       amountsToUpdate.forEach(name => {
         updatedAmounts[name] = winningAmounts[name]
       })
-
       await axios.post(`${process.env.REACT_APP_BASE_URL}api/main/update-winning-amount`, updatedAmounts)
       toast.success("Successfully updated winning amounts")
       setAmountsToUpdate([])
@@ -54,6 +53,26 @@ const WinningAmount = () => {
         : toast.error("Failed to update winning amounts")
     }
   }
+
+  const nameHelper = (name)=>{
+    if(name == "first"){
+      return "1st Prize"
+    }
+    else if(name == "second"){
+      return "2nd Prize"
+    }
+    else if(name == "third"){
+      return "3rd Prize"
+    }
+    else if(name == "fourth"){
+      return "4th Prize"
+    }
+    else if(name == "fifth"){
+      return "5th Prize"
+    }
+    return name
+  }
+
 
   return (
     <div className='mt-[80px]'>
@@ -74,7 +93,7 @@ const WinningAmount = () => {
               !['_id', 'date', 'time','updatedAt'].includes(name) && (
                 <TableRow key={name}>
                   <TableCell className="font-medium border-2 border-black text-center">{index - 2}</TableCell>
-                  <TableCell className="font-medium border-2 border-black text-center">{name}</TableCell>
+                  <TableCell className="font-medium border-2 border-black text-center">{nameHelper(name)}</TableCell>
                   <TableCell className="font-medium border-2 border-black text-center max-w-10">
                     <Input
                       onChange={(e) => handleAmountChange(name, e.target.value)}
