@@ -53,7 +53,7 @@ const AddEntries = () => {
 
 
     // refs
-
+    const ticketNoRef = useRef(null)
     const countRef = useRef(null)
     const buttonRef = useRef(null)
     const endNoRef = useRef(null)
@@ -169,6 +169,7 @@ const AddEntries = () => {
                 // Create a new entry for each ticket number
                 temp_array.push({ ...newEntry, ticket_number: i, uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count)});
             }
+            temp_array.reverse()
             setEntries([...temp_array,...entries]); // Add all entries to the state
         }
         else if (currentEntry.lottery_name == "BOX"){             
@@ -182,10 +183,16 @@ const AddEntries = () => {
             }
             setEntries([...temp_array,...entries]); // Add all permutations as entries
         }
-
         else {
             setEntries([newEntry,...entries]); // Add the single new entry
         }
+
+        setCurrentEntry((prev)=>({
+            ...prev,
+            ticket_number:"",
+            count:""
+        }));
+        setEndNo("")
     };
 
     // Function to reset the form values
@@ -276,6 +283,7 @@ const AddEntries = () => {
     const handleEnterPress = (event)=>{
         if (event.key === 'Enter') {
             buttonRef.current.click();
+            ticketNoRef.current.focus();
         }
     }
 
@@ -386,13 +394,13 @@ const AddEntries = () => {
                 <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
                     <div>
                         <label htmlFor="ticket-no">Ticket No</label>
-                        <input className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={handleTicketNoLength} value={currentEntry.ticket_number} type="number" name="ticket-no" />
+                        <input ref={ticketNoRef} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={handleTicketNoLength} value={currentEntry.ticket_number} type="number" name="ticket-no" />
                     </div>
                     {
                         isAny[1] ?
                             <div>
                                 <label htmlFor="end-no">End No.</label>
-                                <input ref={endNoRef} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={(e) => { setEndNo(String(e.target.value)); if(String(e.target.value).length>=maxLength){countRef.current.focus();}}} type="number" name="end-no" />
+                                <input value={endNo} ref={endNoRef} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={(e) => { setEndNo(String(e.target.value)); if(String(e.target.value).length>=maxLength){countRef.current.focus();}}} type="number" name="end-no" />
                             </div>
                             : ""
                     }

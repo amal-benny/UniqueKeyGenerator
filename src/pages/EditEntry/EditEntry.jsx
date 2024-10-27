@@ -161,6 +161,7 @@ const EditEntry = () => {
                 // Create a new entry for each ticket number
                 temp_array.push({ ...newEntry, ticket_number: i, uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count)});
             }
+            temp_array.reverse();
             setEntries([...temp_array,...entries]); // Add all entries to the state
             setNeedsToBeAddedToDb([...needsToBeAddedToDb,...temp_array])
         }

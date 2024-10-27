@@ -64,12 +64,11 @@ const Winners = () => {
         fetchData();
     }, [])
 
-    const handleEditClick = (date, time, staff_name) => {
+    const handleEditClick = (_id) => {
         const params = new URLSearchParams({
-            date: date,
-            time: time,
+            _id: _id
         });
-        navigate(`/edit-entries?${params.toString()}`);
+        navigate(`/edit-winners?${params.toString()}`);
     }
 
     return (
@@ -138,7 +137,7 @@ const Winners = () => {
                                     <TableCell className="font-medium border text-center">{winner.winning.first}</TableCell>
                                     <TableCell className="font-medium border text-right">
                                         <div className='flex flex-row gap-2'>
-                                            <Button variant="secondary" onClick={() => { handleEditClick(winner.date, winner.time) }}>Edit</Button><Button variant="destructive">Delete</Button>
+                                            <Button variant="secondary" onClick={() => { handleEditClick(winner._id) }}>Edit</Button><Button variant="destructive">Delete</Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>

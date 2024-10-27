@@ -14,6 +14,7 @@ import Winners from './pages/Winners/Winners';
 import AddWinners from './pages/AddWinners/AddWinners';
 import Report from './pages/Report/Report';
 import DailyReport from './pages/DailyReport/DailyReport';
+import EditWinners from './pages/EditWinners/EditWinners';
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -39,6 +40,7 @@ function App() {
           <Route path="/winning-amount" element={<WinningAmount/>} />
           <Route path="/winners" element={<Winners/>} />
           <Route path="/add-winners" element={<AddWinners/>} />
+          <Route path="/edit-winners" element={<EditWinners/>} />
           <Route path="/daily-report" element={<DailyReport/>} />
           <Route path="/report" element={<Report/>} />
           <Route path="*" element={<NotFound />} />
@@ -58,6 +60,7 @@ function App() {
           <Route path="/winning-amount" element={<WinningAmount/>} />
           <Route path="/winners" element={<Winners/>} />
           <Route path="/add-winners" element={<AddWinners/>} />
+          <Route path="/edit-winners" element={<EditWinners/>} />
           <Route path="/daily-report" element={<DailyReport/>} />
           <Route path="/report" element={<Report/>} />
           <Route path="*" element={<NotFound />} />

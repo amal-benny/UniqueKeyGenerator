@@ -37,7 +37,6 @@ const Entries = () => {
         }
     }
     const handleSearch = ()=>{
-        console.log(currentData)
         if(!currentData.date || !currentData.time ){
             return toast.error("Please enter date and time")
         }
