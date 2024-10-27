@@ -24,7 +24,7 @@ import toast from 'react-hot-toast'
 const Report = () => {
     const [currentData, setCurrentData] = useState({})
     const [lotteryDetails, setLotteryDetails] = useState({})
-    const [winningAmount,setWinningAmount] = useState({})
+    const [winningAmount, setWinningAmount] = useState({})
     const [staffs, setStaffs] = useState([])
     const [topTable, setTopTable] = useState({
         Single: 0,
@@ -166,23 +166,23 @@ const Report = () => {
                     winningPosition = 'fourth';
                 } else if (ticket_number === winning.fifth) {
                     winningPosition = 'fifth';
-                }   
+                }
                 // Check if ticket_number is in the guarantee list
                 if (winning.guarantee.includes(ticket_number)) {
                     winningPosition = 'guarantee';
                 }
                 // Check for A, B, C, AB, AC, BC, BOXKK1-6
-                if (lottery_name === 'A' && winning.A){
+                if (lottery_name === 'A' && winning.A && ticket_number == winning.A) {
                     winningPosition = 'A';
-                } else if (lottery_name === 'B' && winning.B) {
+                } else if (lottery_name === 'B' && winning.B && ticket_number == winning.B) {
                     winningPosition = 'B';
-                } else if (lottery_name === 'C' && winning.C) {
+                } else if (lottery_name === 'C' && winning.C && ticket_number == winning.C) {
                     winningPosition = 'C';
-                } else if (lottery_name === 'AB' && winning.AB) {
+                } else if (lottery_name === 'AB' && winning.AB && ticket_number == winning.AB) {
                     winningPosition = 'AB';
-                } else if (lottery_name === 'AC' && winning.AC) {
+                } else if (lottery_name === 'AC' && winning.AC && ticket_number == winning.AC) {
                     winningPosition = 'AC';
-                } else if (lottery_name === 'BC' && winning.BC) {
+                } else if (lottery_name === 'BC' && winning.BC && ticket_number == winning.BC) {
                     winningPosition = 'BC';
                 }
                 // If a winning position is found, update the topTable state
@@ -221,25 +221,25 @@ const Report = () => {
     //     navigate(`/edit-entries?${params.toString()}`);
     // }
 
-    const calculateTotalCountForBottom = ()=>{
+    const calculateTotalCountForBottom = () => {
         let data = 0;
-        bottomTable.forEach(({count, winning_position})=>{
+        bottomTable.forEach(({ count, winning_position }) => {
             data += count
         })
         return data
     }
 
-    const calculateSalesTotal = ()=>{
-        const data = (topTable.boxkk * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].boxkk : 0)) + 
-        (topTable.lsk*(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].lsk : 0) )+
-        (topTable.Double * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].double : 0))+
-        (topTable.Single*(staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].single : 0))
+    const calculateSalesTotal = () => {
+        const data = (topTable.boxkk * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].boxkk : 0)) +
+            (topTable.lsk * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].lsk : 0)) +
+            (topTable.Double * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].double : 0)) +
+            (topTable.Single * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].single : 0))
         return data
     }
- 
-    const calculateWinningTotal = ()=>{
+
+    const calculateWinningTotal = () => {
         let data = 0;
-        bottomTable.forEach(({count, winning_position})=>{
+        bottomTable.forEach(({ count, winning_position }) => {
             data += count * winningAmount[winning_position]
         })
         return data
@@ -347,11 +347,11 @@ const Report = () => {
                                 ""
                         }
                         <TableRow>
-                                    <TableCell className="font-medium border"></TableCell>
-                                    <TableCell className="font-medium border"></TableCell>
-                                    <TableCell className="font-medium border text-right">Sales Total= </TableCell>
-                                    <TableCell className="font-medium border text-right">{calculateSalesTotal()}</TableCell>
-                                </TableRow>
+                            <TableCell className="font-medium border"></TableCell>
+                            <TableCell className="font-medium border"></TableCell>
+                            <TableCell className="font-medium border text-right">Sales Total= </TableCell>
+                            <TableCell className="font-medium border text-right">{calculateSalesTotal()}</TableCell>
+                        </TableRow>
                     </TableBody>
                 </Table>
                 {
@@ -402,7 +402,7 @@ const Report = () => {
                             <TableCell className="font-medium border"></TableCell>
                             <TableCell className="font-bold border text-center text-black"></TableCell>
                             <TableCell className="font-bold border text-left text-black">Balance:</TableCell>
-                            <TableCell className="font-medium border text-right">{ (calculateWinningTotal() - calculateSalesTotal()) < 0 ? "-" +(calculateWinningTotal() - calculateSalesTotal()) :"+" +(calculateWinningTotal() - calculateSalesTotal()) }</TableCell>
+                            <TableCell className="font-medium border text-right">{(calculateWinningTotal() - calculateSalesTotal()) < 0 ? "-" + (calculateWinningTotal() - calculateSalesTotal()) : "+" + (calculateWinningTotal() - calculateSalesTotal())}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>

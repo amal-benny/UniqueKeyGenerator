@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
     Select,
     SelectContent,
@@ -34,10 +34,10 @@ const EditEntry = () => {
     const param1 = moment(searchParams.get('date')).utc().format("YYYY-MM-DD")
     const param2 = searchParams.get('time');
     const param3 = searchParams.get('staff_name');
-    const navigate = useNavigate();
+
     const fetchAllEntriesForEdit = async () => {
         try {
-          const data = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-all-entries/"+param1+"/"+param2+"/"+param3);
+          const data = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-entry/"+param1+"/"+param2+"/"+param3);
           setEntries(data.data);
         } catch (error) {
             error.response ? toast.error( "Error : " + error.response.data.message) : toast.error("failed")
@@ -45,9 +45,9 @@ const EditEntry = () => {
       };
 
     const [currentEntry, setCurrentEntry] = useState({
-        date: "",
-        time: "",
-        staff_name: "",
+        date: param1,
+        time: param2,
+        staff_name: param3,
         lottery_name: "",
         ticket_number: "",
         count: ""
@@ -154,7 +154,6 @@ const EditEntry = () => {
         if ((isAny[0] && isAny[1]) && endNo <= newEntry.ticket_number) {
             return toast.error("End number cannot be less than ticket number");
         }
-
         // If any checkbox is pressed
         if (isAny[0] && isAny[1]) {
             const temp_array = [];
@@ -241,8 +240,12 @@ const EditEntry = () => {
             if(needsToBeAddedToDb.length == 0 && idToRemoveFromDb.length == 0){
                 return toast("No Changes were done")
             }
-            await axios.post(process.env.REACT_APP_BASE_URL + "api/main/add-entries",{entries:needsToBeAddedToDb})
-            await axios.post(process.env.REACT_APP_BASE_URL + "api/main/delete-entries",{idsToDelete:idToRemoveFromDb})
+            if(needsToBeAddedToDb.length > 0){
+                await axios.post(process.env.REACT_APP_BASE_URL + "api/main/add-entries",{entries:needsToBeAddedToDb})
+            }
+            if(idToRemoveFromDb.length > 0){
+                await axios.post(process.env.REACT_APP_BASE_URL + "api/main/delete-entries",{idsToDelete:idToRemoveFromDb})
+            }
             toast.dismiss()
             toast.success("Success")
             // navigate("/")
@@ -325,12 +328,12 @@ const EditEntry = () => {
                 <div className='flex justify-center items-center  md:items-end gap-3 md:gap-8 flex-col md:flex-row px-10 '>
                     <div>
                         <label htmlFor="date">Date</label>
-                        <Input onChange={(e) => { setCurrentEntry({ ...currentEntry, date: e.target.value }) }} type="date" name="date" />
+                        <Input value={currentEntry.date} onChange={(e) => { setCurrentEntry({ ...currentEntry, date: e.target.value }) }} type="date" name="date" />
                     </div>
                     {/* time */}
                     <div>
                         <label htmlFor="time">Time</label>
-                        <Select onValueChange={(e) => { setCurrentEntry({ ...currentEntry, time: e }) }} name='time'>
+                        <Select value={currentEntry.time} onValueChange={(e) => { setCurrentEntry({ ...currentEntry, time: e }) }} name='time'>
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select Time" />
                             </SelectTrigger>
@@ -345,7 +348,7 @@ const EditEntry = () => {
                     {/* staff */}
                     <div>
                         <label htmlFor="staff">Staff</label>
-                        <Select onValueChange={(e) => { setCurrentEntry({ ...currentEntry, staff_name: e }); }} name='staff'>
+                        <Select value={currentEntry.staff_name} onValueChange={(e) => { setCurrentEntry({ ...currentEntry, staff_name: e }); }} name='staff'>
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select Staff" />
                             </SelectTrigger>

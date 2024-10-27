@@ -22,8 +22,17 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const Winners = () => {
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Add leading zero if necessary
+        const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if necessary
+        return `${year}-${month}-${day}`;
+      };
     const [winners, setWinners] = useState([])
-    const [currentData, setCurrentData] = useState({})
+    const [currentData, setCurrentData] = useState({
+        date:getTodayDate()
+    })
     const navigate = useNavigate()
     const fetchData = async () => {
         try {
@@ -72,12 +81,12 @@ const Winners = () => {
             <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
                 <div>
                     <label htmlFor="date">Date</label>
-                    <Input onChange={(e) => { setCurrentData({ ...currentData, date: e.target.value }) }} type="date" name="date" />
+                    <Input value={currentData.date} onChange={(e) => { setCurrentData({ ...currentData, date: e.target.value }) }} type="date" name="date" />
                 </div>
                 {/* time */}
                 <div>
                     <label htmlFor="time">Time</label>
-                    <Select onValueChange={(e) => { setCurrentData({ ...currentData, time: e }) }} name='time'>
+                    <Select autofocus onValueChange={(e) => { setCurrentData({ ...currentData, time: e }) }} name='time'>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Select Time" />
                         </SelectTrigger>

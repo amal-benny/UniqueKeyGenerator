@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input'
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import {
     Select,
     SelectContent,
@@ -23,10 +23,17 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import toast from 'react-hot-toast'
 
 const AddEntries = () => {
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Add leading zero if necessary
+        const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if necessary
+        return `${year}-${month}-${day}`;
+    };
     const [staffAmount,setStaffAmount] = useState([])
     const [currentEntry, setCurrentEntry] = useState({
-        date: "",
-        time: "",
+        date: getTodayDate(),
+        time: "01:00",
         staff_name: "",
         lottery_name: "",
         ticket_number: "",
@@ -34,7 +41,6 @@ const AddEntries = () => {
     });
     const [endNo, setEndNo] = useState(null)
     const [entries, setEntries] = useState([])
-
     const [lotteryName, setLotteryName] = useState({
         1: ["A", "B", "C"],
         2: ["AB", "AC", "BC"],
@@ -43,6 +49,16 @@ const AddEntries = () => {
     const [lotteryNames, setLotteryNames] = useState(["A", "B", "C"])
     const [maxLength, setMaxLength] = useState(1)
     const [isAny, setAny] = useState([false, false]) // false => any is visible false => end number is visible
+
+
+
+    // refs
+
+    const countRef = useRef(null)
+    const buttonRef = useRef(null)
+    const endNoRef = useRef(null)
+
+
 
     const handleNumberChange = (number) => {
         setLotteryNames(lotteryName[number])
@@ -54,6 +70,15 @@ const AddEntries = () => {
     const handleTicketNoLength = (e) => {
         const inputValue = e.target.value;
         // Check if the length exceeds the maxLength
+        if (inputValue.length == maxLength){
+            if(isAny[1]){
+                endNoRef.current.focus();
+            }
+            else
+            {
+                countRef.current.focus();
+            }
+        }
         if (inputValue.length > maxLength) {
             // Slice the input to the maximum allowed length
             e.target.value = inputValue.slice(0, maxLength);
@@ -137,7 +162,6 @@ const AddEntries = () => {
         if ((isAny[0] && isAny[1]) && endNo <= newEntry.ticket_number) {
             return toast.error("End number cannot be less than ticket number");
         }
-
         // If any checkbox is pressed
         if (isAny[0] && isAny[1]) {
             const temp_array = [];
@@ -163,6 +187,7 @@ const AddEntries = () => {
             setEntries([newEntry,...entries]); // Add the single new entry
         }
     };
+
     // Function to reset the form values
     const resetForm = () => {
         setCurrentEntry({
@@ -248,8 +273,20 @@ const AddEntries = () => {
         }
     };
 
+    const handleEnterPress = (event)=>{
+        if (event.key === 'Enter') {
+            buttonRef.current.click();
+        }
+    }
+
     useEffect(()=>{
         fetchStaffAmount();
+        
+        document.addEventListener('keydown', handleEnterPress);
+        
+        return () => {
+            document.removeEventListener('keydown', handleEnterPress);
+          };      
     },[])
 
     return (
@@ -279,12 +316,12 @@ const AddEntries = () => {
                 <div className='flex justify-center items-center  md:items-end gap-3 md:gap-8 flex-col md:flex-row px-10 '>
                     <div>
                         <label htmlFor="date">Date</label>
-                        <Input onChange={(e) => { setCurrentEntry({ ...currentEntry, date: e.target.value }) }} type="date" name="date" />
+                        <Input value={currentEntry.date} onChange={(e) => { setCurrentEntry({ ...currentEntry, date: e.target.value }) }} type="date" name="date" />
                     </div>
                     {/* time */}
                     <div>
                         <label htmlFor="time">Time</label>
-                        <Select onValueChange={(e) => { setCurrentEntry({ ...currentEntry, time: e }) }} name='time'>
+                        <Select value={currentEntry.time} onValueChange={(e) => { setCurrentEntry({ ...currentEntry, time: e }) }} name='time'>
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select Time" />
                             </SelectTrigger>
@@ -349,22 +386,22 @@ const AddEntries = () => {
                 <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
                     <div>
                         <label htmlFor="ticket-no">Ticket No</label>
-                        <Input onChange={handleTicketNoLength} value={currentEntry.ticket_number} type="number" name="ticket-no" />
-                    </div>
-                    <div>
-                        <label htmlFor="count">Count</label>
-                        <Input onChange={(e) => { setCurrentEntry({ ...currentEntry, count: e.target.value }) }} value={currentEntry.count} type="number" name="count" />
+                        <input className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={handleTicketNoLength} value={currentEntry.ticket_number} type="number" name="ticket-no" />
                     </div>
                     {
                         isAny[1] ?
                             <div>
                                 <label htmlFor="end-no">End No.</label>
-                                <Input onChange={(e) => { setEndNo(String(e.target.value)) }} type="number" name="end-no" />
+                                <input ref={endNoRef} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={(e) => { setEndNo(String(e.target.value)); if(String(e.target.value).length>=maxLength){countRef.current.focus();}}} type="number" name="end-no" />
                             </div>
                             : ""
                     }
+                    <div>
+                        <label htmlFor="count">Count</label>
+                        <input ref={countRef} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={(e) => { setCurrentEntry({ ...currentEntry, count: e.target.value }) }} value={currentEntry.count} type="number" name="count" />
+                    </div>
                     {/* search */}
-                    <Button className={"bg-sky-500 text-white hover:bg-sky-600"} onClick={handleAdd}>Add</Button>
+                    <button ref={buttonRef} onClick={handleAdd}></button>
                 </div>
             </div>
 
