@@ -74,7 +74,7 @@ const StaffAmount = () => {
             {/* Search Form */}
             {
             user.username === "admin" ? 
-            <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
+            <div className='flex justify-center items-start  md:items-end gap-3 flex-col md:flex-row px-20 '>
                 {/* staff */}
                 <div>
                     <label htmlFor="staff">Staff</label>

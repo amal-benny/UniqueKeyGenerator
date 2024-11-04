@@ -71,13 +71,30 @@ const Winners = () => {
         navigate(`/edit-winners?${params.toString()}`);
     }
 
+    const handleDelete = async(_id)=>{
+        if(confirm("Are you sure to delete Winners Data") == false){
+            return
+        }
+        try {
+            await axios.post(process.env.REACT_APP_BASE_URL + "api/main/delete-winner-by-id",{
+                _id
+            });
+        toast.success("Deleted")
+        fetchData()
+    } catch (error) {
+            error.response
+                ? toast.error("Error: " + error.response.data.message)
+                : toast.error("Failed");
+        }
+    }
+
     return (
         <div className='mt-[80px]'>
             <h2 className="text-center scroll-m-20 pb-2 text-4xl font-semibold tracking-tight pt-2 first:mt-0">
                 Winners
             </h2>
             {/* Search Form */}
-            <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
+            <div className='flex justify-center items-start  md:items-end gap-3 flex-col md:flex-row px-20 '>
                 <div>
                     <label htmlFor="date">Date</label>
                     <Input value={currentData.date} onChange={(e) => { setCurrentData({ ...currentData, date: e.target.value }) }} type="date" name="date" />
@@ -137,7 +154,7 @@ const Winners = () => {
                                     <TableCell className="font-medium border text-center">{winner.winning.first}</TableCell>
                                     <TableCell className="font-medium border text-right">
                                         <div className='flex flex-row gap-2'>
-                                            <Button variant="secondary" onClick={() => { handleEditClick(winner._id) }}>Edit</Button><Button variant="destructive">Delete</Button>
+                                            <Button variant="secondary" onClick={() => { handleEditClick(winner._id) }}>Edit</Button><Button onClick={()=>{handleDelete(winner._id)}} variant="destructive">Delete</Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>

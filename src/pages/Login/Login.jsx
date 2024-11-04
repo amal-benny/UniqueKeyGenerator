@@ -28,11 +28,14 @@ const Login = () => {
             return toast.error("password should be atleast 8 characters long")
         }
         await login(username,password)
-        toast.dismiss()
         navigate("/")
     } catch (error) {
             toast.dismiss()
             error.response ? toast.error(error) : toast.error(error)
+        }
+        finally
+        {
+            // toast.dismiss()
         }
     }
 

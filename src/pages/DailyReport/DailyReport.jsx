@@ -463,7 +463,7 @@ const DailyReport = () => {
         Daily Report
       </h2>
       {/* Search Form */}
-      <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
+      <div className='flex justify-center items-start  md:items-end gap-3 flex-col md:flex-row px-20 '>
         <div>
           <label htmlFor="date">Date</label>
           <Input onChange={(e) => { setCurrentDate(e.target.value) }} value={currentDate} type="date" name="date" />

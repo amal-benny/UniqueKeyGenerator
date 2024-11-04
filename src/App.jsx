@@ -1,9 +1,9 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import Navbar from './globals/Navbar'
 import Login from './pages/Login/Login'
 import { AuthContext } from './context/authContext.jsx';
 import { Toaster } from 'react-hot-toast';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import NotFound from './globals/NotFound';
 import Entries from './pages/Entries/Entries';
 import AddEntries from './pages/AddEntries/AddEntries';
@@ -18,6 +18,7 @@ import EditWinners from './pages/EditWinners/EditWinners';
 
 function App() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate()
   const renderRoutes = () => {
     if (!user) {
       return (

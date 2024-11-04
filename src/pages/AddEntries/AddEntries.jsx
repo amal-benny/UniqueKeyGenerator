@@ -30,6 +30,19 @@ const AddEntries = () => {
         const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if necessary
         return `${year}-${month}-${day}`;
     };
+
+    const isBadNumber = num => {
+        let tempNum = String(num);
+        let arr = tempNum.split('');
+        let zeroCount = 0;
+        arr.forEach(number => {
+          if (number === '0') {
+            zeroCount += 1;
+          }
+        });
+        return zeroCount >= 2;
+      };
+
     const [staffAmount,setStaffAmount] = useState([])
     const [currentEntry, setCurrentEntry] = useState({
         date: getTodayDate(),
@@ -95,10 +108,15 @@ const AddEntries = () => {
         else {
             setAny([false, false])
         }
+        setTimeout(3000,()=>{
+            ticketNoRef.current.focus()
+            console.log("Works")
+        })
     }
 
     const handleAnyChange = (anyStatus) => {
         setAny([true, anyStatus])
+        ticketNoRef.current.focus()
     }
 
     const generateHash = () => Math.random().toString(36).substring(2, 9);
@@ -174,13 +192,20 @@ const AddEntries = () => {
         }
         else if (currentEntry.lottery_name == "BOX"){             
             const ticketNumberStr = newEntry.ticket_number.toString();
-            const permutations = generatePermutations(ticketNumberStr); // Generate permutations
-            const temp_array = permutations.map(permutation => {
-                return { ...newEntry, lottery_name:"LSK-SUPER",ticket_number: parseInt(permutation), uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count)};
-            });
-            if(currentEntry.ticket_number == 100){
-                setEntries([...["100","001","010"],...entries]); // Add all permutations as entries
+            let permutations = []
+            if(isBadNumber(ticketNumberStr)){
+                permutations = generateSpecialPermutations(ticketNumberStr)
             }
+            else
+            {
+                permutations = generatePermutations(ticketNumberStr); // Generate permutations
+            }
+            const temp_array = permutations.map(permutation => {
+                return { ...newEntry, lottery_name:"LSK-SUPER",ticket_number: (permutation), uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count)};
+            });
+            // if(currentEntry.ticket_number == "100" ||currentEntry.ticket_number == "010" || currentEntry.ticket_number == "001" ){
+            //     setEntries([...["100","001","010"],...entries]); // Add all permutations as entries
+            // }
             setEntries([...temp_array,...entries]); // Add all permutations as entries
         }
         else {
@@ -193,6 +218,7 @@ const AddEntries = () => {
             count:""
         }));
         setEndNo("")
+        handleAnyChange(false)
     };
 
     // Function to reset the form values
@@ -243,6 +269,17 @@ const AddEntries = () => {
         return perms;
     }
 
+    const generateSpecialPermutations = num => {
+        let arr = num.split('');
+        let singleNumber = 0;
+        arr.forEach(e => {
+          if (e !== '0') {
+            singleNumber = e;
+          }
+        });
+        return [singleNumber+"00","0"+singleNumber+"0","00"+singleNumber];
+      };
+
     const handleSave = async()=>{
         try {
             toast.loading("Uploading")
@@ -288,13 +325,16 @@ const AddEntries = () => {
     }
 
     useEffect(()=>{
+        handleNumberChange(3)
+        handleLotteryNameChange("LSK-SUPER")
         fetchStaffAmount();
         
         document.addEventListener('keydown', handleEnterPress);
         
+
         return () => {
             document.removeEventListener('keydown', handleEnterPress);
-          };      
+          };    
     },[])
 
     return (
@@ -305,7 +345,7 @@ const AddEntries = () => {
             <div className='space-y-5'>
                 {/* Search Form row 1 */}
                 <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-10 '>
-                    <RadioGroup onValueChange={handleNumberChange} defaultValue={1} className="flex gap-5">
+                    <RadioGroup onValueChange={handleNumberChange} defaultValue={3} className="flex gap-5">
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value={1} id="1" />
                             <Label htmlFor={"1"}>1</Label>
@@ -321,7 +361,7 @@ const AddEntries = () => {
                     </RadioGroup>
                 </div>
                 {/* Search Form row 2 */}
-                <div className='flex justify-center items-center  md:items-end gap-3 md:gap-8 flex-col md:flex-row px-10 '>
+                <div className='flex justify-center items-start  md:items-end gap-3 md:gap-8 flex-col md:flex-row px-10 '>
                     <div>
                         <label htmlFor="date">Date</label>
                         <Input value={currentEntry.date} onChange={(e) => { setCurrentEntry({ ...currentEntry, date: e.target.value }) }} type="date" name="date" />
@@ -359,7 +399,7 @@ const AddEntries = () => {
                     </div>
                     <div>
                         <label htmlFor="lottery_name">Lottery Name</label>
-                        <Select onValueChange={handleLotteryNameChange} defaultValue="" name='lottery_name'>
+                        <Select onValueChange={handleLotteryNameChange} value={currentEntry.lottery_name} name='lottery_name'>
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select Lottery" />
                             </SelectTrigger>
@@ -376,7 +416,7 @@ const AddEntries = () => {
                     {
                         isAny[0] ?
                             <div className="flex items-center justify-center my-auto space-x-2">
-                                <Checkbox onCheckedChange={handleAnyChange} id="any" />
+                                <Checkbox onCheckedChange={handleAnyChange} id="any" checked={isAny[1]} />
                                 <label
                                     htmlFor="any"
                                     className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -391,7 +431,7 @@ const AddEntries = () => {
 
 
                 {/* Search Form row 3*/}
-                <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
+                <div className='flex justify-center items-start  md:items-end gap-3 flex-col md:flex-row px-10 '>
                     <div>
                         <label htmlFor="ticket-no">Ticket No</label>
                         <input ref={ticketNoRef} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={handleTicketNoLength} value={currentEntry.ticket_number} type="number" name="ticket-no" />
@@ -409,7 +449,7 @@ const AddEntries = () => {
                         <input ref={countRef} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50' onChange={(e) => { setCurrentEntry({ ...currentEntry, count: e.target.value }) }} value={currentEntry.count} type="number" name="count" />
                     </div>
                     {/* search */}
-                    <button ref={buttonRef} onClick={handleAdd}></button>
+                    <button ref={buttonRef} className='bg-sky-500 px-5 py-2 text-white rounded-md' onClick={handleAdd}>Add</button>
                 </div>
             </div>
 

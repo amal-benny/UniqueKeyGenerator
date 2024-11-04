@@ -22,7 +22,17 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const Report = () => {
-    const [currentData, setCurrentData] = useState({})
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Add leading zero if necessary
+        const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if necessary
+        return `${year}-${month}-${day}`;
+    };
+    const [currentData, setCurrentData] = useState({
+        date:getTodayDate(),
+        time:"01:00"
+    })
     const [lotteryDetails, setLotteryDetails] = useState({})
     const [winningAmount, setWinningAmount] = useState({})
     const [staffs, setStaffs] = useState([])
@@ -251,15 +261,15 @@ const Report = () => {
                 Report
             </h2>
             {/* Search Form */}
-            <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
+            <div className='flex justify-center items-start  md:items-end gap-3 flex-col md:flex-row px-10 '>
                 <div>
                     <label htmlFor="date">Date</label>
-                    <Input onChange={(e) => { setCurrentData({ ...currentData, date: e.target.value }); setTopTable({ Single: 0, Double: 0, lsk: 0, boxkk: 0 }) }} type="date" name="date" />
+                    <Input value={currentData.date} onChange={(e) => { setCurrentData({ ...currentData, date: e.target.value }); setTopTable({ Single: 0, Double: 0, lsk: 0, boxkk: 0 }) }} type="date" name="date" />
                 </div>
                 {/* time */}
                 <div>
                     <label htmlFor="time">Time</label>
-                    <Select onValueChange={(e) => { setCurrentData({ ...currentData, time: e }); setTopTable({ Single: 0, Double: 0, lsk: 0, boxkk: 0 }) }} name='time'>
+                    <Select value={currentData.time} onValueChange={(e) => { setCurrentData({ ...currentData, time: e }); setTopTable({ Single: 0, Double: 0, lsk: 0, boxkk: 0 }) }} name='time'>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Select Time" />
                         </SelectTrigger>
@@ -402,7 +412,7 @@ const Report = () => {
                             <TableCell className="font-medium border"></TableCell>
                             <TableCell className="font-bold border text-center text-black"></TableCell>
                             <TableCell className="font-bold border text-left text-black">Balance:</TableCell>
-                            <TableCell className="font-medium border text-right">{(calculateWinningTotal() - calculateSalesTotal()) < 0 ? "-" + (calculateWinningTotal() - calculateSalesTotal()) : "+" + (calculateWinningTotal() - calculateSalesTotal())}</TableCell>
+                            <TableCell className="font-medium border text-right">{(calculateSalesTotal() - calculateWinningTotal()) < 0 ? ( calculateSalesTotal() - calculateWinningTotal()) : "+" + (calculateSalesTotal() - calculateWinningTotal())}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>

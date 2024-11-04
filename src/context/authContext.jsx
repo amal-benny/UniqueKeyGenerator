@@ -8,7 +8,6 @@ const BASE_URL = process.env.REACT_APP_BASE_URL
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const login = async (username, password) => {
         try {
             const response = await axios.post(BASE_URL+'api/auth/login', { username, password });

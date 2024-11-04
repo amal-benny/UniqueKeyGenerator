@@ -22,7 +22,6 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const Entries = () => {
-    const [staffs] = useState(["other", "Rashid", "Sandosh", "Muneer", "Balan", "SRS_deer", "Srs_Keralam", "San_grp", "Gobi", "kerala_+_8pm_deer"])
     const [entries, setEntries] = useState([])
     const [currentData,setCurrentData] = useState({})
     const navigate = useNavigate()
@@ -41,6 +40,26 @@ const Entries = () => {
             return toast.error("Please enter date and time")
         }
         fetchData();
+    }
+    const handleDelete = async(time,date,staff_name)=>{
+        if(confirm("Are you sure to delete entries") == false){
+            return
+        }
+        try {
+        await axios.post(process.env.REACT_APP_BASE_URL + "api/main/delete-entry-by-whole",{
+            time,
+            date,
+            staff_name
+        });
+        // let newEntries = entries.filter((date1,time1,staff_name1) => (date1 != date && time1 != time && staff_name1 != staff_name ))
+        // setEntries(newEntries)
+        fetchData();
+        toast.success("Deleted Entries")
+        } catch (error) {
+            error.response
+            ? toast.error("Error: " + error.response.data.message)
+            : toast.error("Failed");
+        }
     }
     useEffect(()=>{
         fetchData();
@@ -61,7 +80,7 @@ const Entries = () => {
                 Entries
             </h2>
             {/* Search Form */}
-            <div className='flex justify-center items-center  md:items-end gap-3 flex-col md:flex-row px-20 '>
+            <div className='flex justify-center items-start  md:items-end gap-3 flex-col md:flex-row px-20 '>
                 <div>
                     <label htmlFor="date">Date</label>
                     <Input onChange={(e)=>{setCurrentData({...currentData,date:e.target.value})}} type="date" name="date" />
@@ -121,7 +140,7 @@ const Entries = () => {
                                     <TableCell className="font-medium border text-center">{entry.staff_name}</TableCell>
                                     <TableCell className="font-medium border text-right">
                                         <div className='flex flex-row gap-2'>
-                                        <Button variant="secondary" onClick={()=>{handleEditClick(entry.date,entry.time,entry.staff_name)}}>Edit</Button><Button variant="destructive">Delete</Button>
+                                        <Button variant="secondary" onClick={()=>{handleEditClick(entry.date,entry.time,entry.staff_name)}}>Edit</Button><Button onClick={()=>{handleDelete(entry.time,entry.date,entry.staff_name)}} variant="destructive">Delete</Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
