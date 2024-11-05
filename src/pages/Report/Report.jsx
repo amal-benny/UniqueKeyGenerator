@@ -18,7 +18,6 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Button } from '@/components/ui/button'
-import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const Report = () => {

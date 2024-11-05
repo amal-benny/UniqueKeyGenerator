@@ -108,10 +108,9 @@ const AddEntries = () => {
         else {
             setAny([false, false])
         }
-        setTimeout(3000,()=>{
+        setTimeout(()=>{
             ticketNoRef.current.focus()
-            console.log("Works")
-        })
+        },10)
     }
 
     const handleAnyChange = (anyStatus) => {
