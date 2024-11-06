@@ -35,6 +35,7 @@ function App() {
         <>
         <Routes>
           <Route path="/" element={<Entries/>} />
+          <Route path="/login" element={<Navigate to="/"/>} />
           <Route path="/add-entries" element={<AddEntries/>} />
           <Route path="/edit-entries" element={<EditEntry/>} />
           <Route path="/staff-amount" element={<StaffAmount/>} />
@@ -55,6 +56,7 @@ function App() {
         <>
         <Routes>
           <Route path="/" element={<Entries/>} />
+          <Route path="/login" element={<Navigate to="/"/>} />
           <Route path="/add-entries" element={<AddEntries/>} />
           <Route path="/edit-entries" element={<EditEntry/>} />
           <Route path="/staff-amount" element={<StaffAmount/>} />

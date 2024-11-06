@@ -35,7 +35,7 @@ const Login = () => {
         }
         finally
         {
-            // toast.dismiss()
+            toast.dismiss()
         }
     }
 
