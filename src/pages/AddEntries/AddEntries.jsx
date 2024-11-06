@@ -21,6 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import toast from 'react-hot-toast'
+import { cn } from '@/lib/utils'
 
 const AddEntries = () => {
     const getTodayDate = () => {
@@ -152,6 +153,9 @@ const AddEntries = () => {
         // Clear previous errors
         clearErrors();
 
+        // check for number length
+        
+
         // Generate a new ID for the entry
         const newEntry = { ...currentEntry, uid: generateHash(),amount:calculateAmount(currentEntry.staff_name,currentEntry.lottery_name,currentEntry.count) };
         // Validation checks
@@ -169,6 +173,9 @@ const AddEntries = () => {
         }
         if (!newEntry.ticket_number) {
             return toast.error("Please enter ticket number");
+        }
+        if (newEntry.ticket_number.length != maxLength) {
+            return toast.error("Invalid Ticket Number");
         }
         if (!newEntry.count) {
             return toast.error("Please enter count");
@@ -189,7 +196,7 @@ const AddEntries = () => {
             temp_array.reverse()
             setEntries([...temp_array,...entries]); // Add all entries to the state
         }
-        else if (currentEntry.lottery_name == "BOX"){             
+        else if (currentEntry.lottery_name == "BOX"){      
             const ticketNumberStr = newEntry.ticket_number.toString();
             let permutations = []
             if(isBadNumber(ticketNumberStr)){

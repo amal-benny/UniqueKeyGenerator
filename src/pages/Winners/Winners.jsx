@@ -36,7 +36,7 @@ const Winners = () => {
     const navigate = useNavigate()
     const fetchData = async () => {
         try {
-            const res = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-today-winners");
+            const res = await axios.get(process.env.REACT_APP_BASE_URL + "api/main/get-today-winners");          
             setWinners(res.data)
         } catch (error) {
             error.response
@@ -70,6 +70,16 @@ const Winners = () => {
         });
         navigate(`/edit-winners?${params.toString()}`);
     }
+
+    function convertDateFormat(dateString) {
+        const dateParts = dateString.split('-');
+        const year = dateParts[0];
+        const month = dateParts[1];
+        const day = dateParts[2];
+      
+        const formattedDate = `${day}-${month}-${year}`;
+        return formattedDate;
+      }
 
     const handleDelete = async(_id)=>{
         if(confirm("Are you sure to delete Winners Data") == false){
@@ -149,7 +159,7 @@ const Winners = () => {
                         {
                             winners.map((winner, index) => (
                                 <TableRow key={index}>
-                                    <TableCell className="font-medium border" value>{moment(winner.date).utc().format("DD-MM-YYYY")}</TableCell>
+                                    <TableCell className="font-medium border" value>{convertDateFormat(winner.date)}</TableCell>
                                     <TableCell className="font-medium border">{winner.time}</TableCell>
                                     <TableCell className="font-medium border text-center">{winner.winning.first}</TableCell>
                                     <TableCell className="font-medium border text-right">

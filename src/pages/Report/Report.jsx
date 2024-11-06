@@ -194,7 +194,28 @@ const Report = () => {
                 } else if (lottery_name === 'BC' && winning.BC && ticket_number == winning.BC) {
                     winningPosition = 'BC';
                 }
-                // If a winning position is found, update the topTable state
+                // check for boxkk
+                if(lottery_name == "BOXKK"){
+                    if(winning.BOXKK1 == ticket_number){
+                    winningPosition = "BOXKK1"
+                    }
+                    if(winning.BOXKK2 == ticket_number){
+                    winningPosition = "BOXKK2"
+                    }
+                    if(winning.BOXKK3 == ticket_number){
+                    winningPosition = "BOXKK3"
+                    }
+                    if(winning.BOXKK4 == ticket_number){
+                    winningPosition = "BOXKK4"
+                    }
+                    if(winning.BOXKK5 == ticket_number){
+                    winningPosition = "BOXKK5"
+                    }
+                    if(winning.BOXKK6 == ticket_number){
+                    winningPosition = "BOXKK6"
+                    }
+                }
+                // If a winning position is found, update the bottomtable state
                 if (winningPosition) {
                     setBottomTable((prevData) => ([...prevData, {
                         lottery_name: lottery_name,
@@ -243,6 +264,14 @@ const Report = () => {
             (topTable.lsk * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].lsk : 0)) +
             (topTable.Double * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].double : 0)) +
             (topTable.Single * (staffs[currentData.staff_name] != undefined ? staffs[currentData.staff_name].single : 0))
+        return data
+    }
+
+    const calculateTotalSalesCount = ()=>{
+        const data = (topTable.Single != undefined ? topTable.Single  : 0) +
+            (topTable.lsk != undefined ? topTable.lsk : 0) +
+            (topTable.Double != undefined ? topTable.Double : 0) +
+            (topTable.boxkk  != undefined ? topTable.boxkk : 0)
         return data
     }
 
@@ -356,8 +385,8 @@ const Report = () => {
                                 ""
                         }
                         <TableRow>
-                            <TableCell className="font-medium border"></TableCell>
-                            <TableCell className="font-medium border"></TableCell>
+                            <TableCell className="font-medium border text-right">Total = </TableCell>
+                            <TableCell className="font-medium border">{calculateTotalSalesCount()}</TableCell>
                             <TableCell className="font-medium border text-right">Sales Total= </TableCell>
                             <TableCell className="font-medium border text-right">{calculateSalesTotal()}</TableCell>
                         </TableRow>
