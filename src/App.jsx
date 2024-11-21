@@ -1,8 +1,85 @@
+<<<<<<< HEAD
 import  { useState } from "react";
 import Table from "./Table";
 
 const App = () => {
   const [tableData, setTableData] = useState([]);
+=======
+import { useContext, useEffect } from 'react';
+import Navbar from './globals/Navbar'
+import Login from './pages/Login/Login'
+import { AuthContext } from './context/authContext.jsx';
+import { Toaster } from 'react-hot-toast';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import NotFound from './globals/NotFound';
+import Entries from './pages/Entries/Entries';
+import AddEntries from './pages/AddEntries/AddEntries';
+import StaffAmount from './pages/StaffAmount/StaffAmount';
+import EditEntry from './pages/EditEntry/EditEntry';
+import WinningAmount from './pages/WinningAmount/WinningAmount';
+import Winners from './pages/Winners/Winners';
+import AddWinners from './pages/AddWinners/AddWinners';
+import Report from './pages/Report/Report';
+import DailyReport from './pages/DailyReport/DailyReport';
+import EditWinners from './pages/EditWinners/EditWinners';
+
+function App() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate()
+  const renderRoutes = () => {
+    if (!user) {
+      return (
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      )
+    }
+    else if (user.username == "manager") {
+      // manager routes
+      return(
+        <>
+        <Routes>
+          <Route path="/" element={<Entries/>} />
+          <Route path="/login" element={<Navigate to="/"/>} />
+          <Route path="/add-entries" element={<AddEntries/>} />
+          <Route path="/edit-entries" element={<EditEntry/>} />
+          <Route path="/staff-amount" element={<StaffAmount/>} />
+          <Route path="/winning-amount" element={<WinningAmount/>} />
+          <Route path="/winners" element={<Winners/>} />
+          <Route path="/add-winners" element={<AddWinners/>} />
+          <Route path="/edit-winners" element={<EditWinners/>} />
+          <Route path="/daily-report" element={<DailyReport/>} />
+          <Route path="/report" element={<Report/>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        </>
+      )
+    }
+    else {
+      //admin routes
+      return(
+        <>
+        <Routes>
+          <Route path="/" element={<Entries/>} />
+          <Route path="/login" element={<Navigate to="/"/>} />
+          <Route path="/add-entries" element={<AddEntries/>} />
+          <Route path="/edit-entries" element={<EditEntry/>} />
+          <Route path="/staff-amount" element={<StaffAmount/>} />
+          <Route path="/winning-amount" element={<WinningAmount/>} />
+          <Route path="/winners" element={<Winners/>} />
+          <Route path="/add-winners" element={<AddWinners/>} />
+          <Route path="/edit-winners" element={<EditWinners/>} />
+          <Route path="/daily-report" element={<DailyReport/>} />
+          <Route path="/report" element={<Report/>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        </>
+      )
+    }
+  }
+>>>>>>> 8abe4b6cf3878ff322ef15efefd5dea7d8bf6af6
 
   const generateUniqueKey = () => {
     const client = document.getElementById("clientName").value;
